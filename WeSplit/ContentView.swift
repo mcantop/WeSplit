@@ -8,18 +8,45 @@
 import SwiftUI
 
 struct ContentView: View {
+    @FocusState private var amountIsFocused: Bool
     @State private var checkAmount = 0.0
     @State private var numberOfPeople = 0
     @State private var tipPercentage = 15
     let tipPercentages = [0, 10, 15, 20, 25]
+    var currencyFormatter: FloatingPointFormatStyle<Double>.Currency {
+        return .currency(code: Locale.current.currencyCode ?? "USD")
+    }
+    
+    var totalAmountPerPerson: Double {
+        return amountPerPerson + tipPerPerson
+    }
+    
+    var amountPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        let amountPerPerson = checkAmount / peopleCount
+        return amountPerPerson
+    }
+    
+    var tipPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        let tipSelection = Double(tipPercentage)
+        let tipValue = (checkAmount / 100 * tipSelection) / peopleCount
+        return tipValue
+    }
+    
+    var totalAmount: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        return totalAmountPerPerson * peopleCount
+    }
     
     var body: some View {
         NavigationView {
             Form {
                 Section {
                     TextField("Amount", value: $checkAmount,
-                              format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                              format: currencyFormatter)
                     .keyboardType(.decimalPad)
+                    .focused($amountIsFocused)
                 } header: {
                     Text("Amount")
                 }
@@ -37,7 +64,7 @@ struct ContentView: View {
                 
                 Section {
                     Picker("Number of people", selection: $numberOfPeople) {
-                        ForEach(2 ..< 100) { number in
+                        ForEach(2 ..< 101) { number in
                             HStack {
                                 Text("\(number) people")
                                     .padding()
@@ -45,10 +72,39 @@ struct ContentView: View {
                             }
                         }
                     }
+                    .padding(-10)
                     .pickerStyle(.wheel)
                     .frame(height: 80)
                 } header: {
                     Text("Number of people")
+                }
+                
+                Section {
+                    Text(totalAmountPerPerson,
+                         format: currencyFormatter)
+                    Text(amountPerPerson,
+                         format: currencyFormatter) +
+                    Text(" + ") +
+                    Text(tipPerPerson,
+                         format: currencyFormatter)
+                } header: {
+                    Text("Per person")
+                }
+                
+                Section {
+                    Text(totalAmount,
+                    format: currencyFormatter)
+                } header: {
+                    Text("Total")
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    
+                    Button("Done") {
+                        amountIsFocused = false
+                    }
                 }
             }
             .navigationTitle("WeSplit")
