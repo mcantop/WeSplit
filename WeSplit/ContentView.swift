@@ -17,6 +17,12 @@ struct ContentView: View {
         return .currency(code: Locale.current.currencyCode ?? "USD")
     }
     
+    let formatter: NumberFormatter = {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            return formatter
+        }()
+    
     var totalAmountPerPerson: Double {
         return amountPerPerson + tipPerPerson
     }
@@ -79,16 +85,24 @@ struct ContentView: View {
                     Text("Number of people")
                 }
                 
-                Section {
-                    Text(totalAmountPerPerson,
-                         format: currencyFormatter)
-                    Text(amountPerPerson,
-                         format: currencyFormatter) +
-                    Text(" + ") +
-                    Text(tipPerPerson,
-                         format: currencyFormatter)
-                } header: {
-                    Text("Per person")
+                
+                if tipPerPerson != 0.00 {
+                    Section {
+                        Text(totalAmountPerPerson,
+                             format: currencyFormatter) +
+                        Text(" (\(amountPerPerson, specifier: "%.2f")") +
+                        Text(" + ") +
+                        Text("\(tipPerPerson, specifier: "%.2f"))")
+                        } header: {
+                        Text("Per person")
+                    }
+                } else {
+                    Section {
+                        Text(totalAmountPerPerson,
+                             format: currencyFormatter)
+                    } header: {
+                        Text("Per person")
+                    }
                 }
                 
                 Section {
