@@ -17,12 +17,6 @@ struct ContentView: View {
         return .currency(code: Locale.current.currencyCode ?? "USD")
     }
     
-    let formatter: NumberFormatter = {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            return formatter
-        }()
-    
     var totalAmountPerPerson: Double {
         return amountPerPerson + tipPerPerson
     }
